@@ -1,27 +1,15 @@
 import System.IO
+import System.Random
+import Data.Char
 
 main :: IO ()
 main = do
-        hSetBuffering stdout NoBuffering
-        putStrLn "Escreva uma palavra:"
-        palavra <- obterLinhaSecreta
+        contents <- readFile "resources/palavras.txt"
+        let palavras = lines contents
+        n <- randomRIO (0, 12330)
+        let palavra = palavras !! n
         putStrLn "Tente adivinhar:"
         jogar palavra
-
-obterLinhaSecreta :: IO String
-obterLinhaSecreta = do
-                        x <- obterChar
-                        if x == '\n' then
-                            do
-                                putChar x
-                                return []
-                        else
-                            do
-                                putChar ' '
-                                xs <- obterLinhaSecreta
-                                return (x:xs)
-
-
 
 obterChar :: IO Char
 obterChar = do
@@ -34,11 +22,11 @@ jogar :: String -> IO ()
 jogar palavra = do
                     putStr "? "
                     tentativa <- getLine
-                    if tentativa == palavra then
-                        putStrLn "Muito bem!"
+                    if (map toUpper tentativa) == palavra then
+                        putStrLn "\nVOCE ACERTOU!\n"
                     else do
                             putStrLn (encontrar palavra tentativa)
                             jogar palavra
 
 encontrar :: String -> String -> String
-encontrar xs ys = [if x `elem` ys then x else '_' | x <- xs]
+encontrar xs ys = [if x `elem` (map toUpper ys) then x else '_' | x <- xs]
